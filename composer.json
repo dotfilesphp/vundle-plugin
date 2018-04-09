@@ -22,7 +22,7 @@
             }
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "vim/vundle": "0.10.2"
     },
@@ -33,6 +33,13 @@
         "psr-4": { "Dotfiles\\Plugins\\Vundle\\Tests\\": "./tests/" }
     },
     "require-dev": {
-        "dotfiles/bash-plugin": "^1.0"
+        "dotfiles/bash-plugin": "^1.0@dev",
+        "dotfiles/core": "^1.0@dev",
+        "phpunit/phpunit": "^7.1"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
     }
 }

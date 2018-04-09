@@ -1,0 +1,16 @@
+services:
+    _defaults:
+        autoconfigure: true
+        public: true
+        autowire: true
+
+    Dotfiles\Plugins\Vundle\Installer:
+        alias: vundle.installer
+
+    vundle.installer:
+        class: Dotfiles\Plugins\Vundle\Installer
+
+    vundle.listeners.install:
+        class: Dotfiles\Plugins\Vundle\Listeners\InstallListener
+        tags:
+          - { name: event_listener, event: dotfiles.install, method: onInstallEvent }

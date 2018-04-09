@@ -12,7 +12,25 @@
 namespace Dotfiles\Plugins\Vundle;
 
 
-class Configuration
+use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+
+class Configuration implements ConfigurationInterface
 {
+    public function getConfigTreeBuilder()
+    {
+        $builder = new TreeBuilder();
+
+        $root = $builder->root('vundle');
+        $root
+            ->children()
+                ->scalarNode('target_dir')
+                    ->defaultValue(getenv('HOME').'/.vim/bundle/Vundle.vim')
+                ->end()
+            ->end()
+        ;
+
+        return $builder;
+    }
 
 }
