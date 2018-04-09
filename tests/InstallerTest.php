@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the dotfiles project.
  *
- * (c) Anthonius Munthi <me@itstoni.com>
+ *     (c) Anthonius Munthi <me@itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
- * file that was disstributed with this source code.
+ * file that was distributed with this source code.
  */
 
 namespace Dotfiles\Plugins\Vundle\Tests;
@@ -14,7 +16,6 @@ namespace Dotfiles\Plugins\Vundle\Tests;
 use Dotfiles\Core\Config\Config;
 use Dotfiles\Core\Tests\BaseTestCase;
 use Dotfiles\Core\Util\CommandProcessor;
-use Dotfiles\Core\Util\Toolkit;
 use Dotfiles\Plugins\Vundle\Installer;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
@@ -48,7 +49,7 @@ class InstallerTest extends BaseTestCase
      */
     private $temp;
 
-    protected function setUp()/* The :void return type declaration that should be here would cause a BC issue */
+    protected function setUp(): void/* The :void return type declaration that should be here would cause a BC issue */
     {
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->config = $this->createMock(Config::class);
@@ -58,28 +59,13 @@ class InstallerTest extends BaseTestCase
         static::cleanupTempDir();
     }
 
-    private function getSUT()
-    {
-        $retConfig = [
-            'target_dir' => $this->temp
-        ];
-        $this->config->expects($this->any())
-            ->method('get')
-            ->willReturnMap([
-                ['vundle.target_dir',$retConfig['target_dir']],
-                ['dotfiles.base_dir',__DIR__.'/../']
-            ])
-        ;
-        return new Installer($this->config,$this->logger,$this->output,$this->processor);
-    }
-
-    public function testRun()
+    public function testRun(): void
     {
         $this->logger->expects($this->exactly(2))
             ->method('debug')
             ->withConsecutive(
-                [$this->stringContains('begin install')],
-                [$this->stringContains('end install')]
+                array($this->stringContains('begin install')),
+                array($this->stringContains('end install'))
             )
         ;
 
@@ -103,7 +89,7 @@ class InstallerTest extends BaseTestCase
         $this->assertFileExists($temp.'/autoload/vundle.vim');
     }
 
-    public function testRunWhenVimNotInstalled()
+    public function testRunWhenVimNotInstalled(): void
     {
         $process = $this->createMock(Process::class);
         $process->expects($this->exactly(1))
@@ -125,5 +111,21 @@ class InstallerTest extends BaseTestCase
         $temp = $this->temp;
         $installer = $this->getSUT();
         $installer->run();
+    }
+
+    private function getSUT()
+    {
+        $retConfig = array(
+            'target_dir' => $this->temp,
+        );
+        $this->config->expects($this->any())
+            ->method('get')
+            ->willReturnMap(array(
+                array('vundle.target_dir', $retConfig['target_dir']),
+                array('dotfiles.base_dir', __DIR__.'/../'),
+            ))
+        ;
+
+        return new Installer($this->config, $this->logger, $this->output, $this->processor);
     }
 }

@@ -1,15 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the dotfiles project.
  *
- * (c) Anthonius Munthi <me@itstoni.com>
+ *     (c) Anthonius Munthi <me@itstoni.com>
  *
  * For the full copyright and license information, please view the LICENSE
- * file that was disstributed with this source code.
+ * file that was distributed with this source code.
  */
 
 namespace Dotfiles\Plugins\Vundle;
+
 use Dotfiles\Core\Config\Config;
 use Dotfiles\Core\Util\CommandProcessor;
 use Dotfiles\Core\Util\Filesystem;
@@ -17,12 +20,9 @@ use Dotfiles\Core\Util\Toolkit;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Process;
 
 /**
- * Class Installer
- *
- * @package Dotfiles\Plugins\Vundle
+ * Class Installer.
  */
 class Installer
 {
@@ -51,18 +51,18 @@ class Installer
         LoggerInterface $logger,
         OutputInterface $output,
         CommandProcessor $processor
-    )
-    {
+    ) {
         $this->config = $config;
         $this->logger = $logger;
         $this->output = $output;
         $this->processor = $processor;
     }
 
-    public function run()
+    public function run(): void
     {
-        if(!$this->ensureVimInstalled()){
+        if (!$this->ensureVimInstalled()) {
             $this->output->writeln('VIM is not installed, skipping');
+
             return;
         }
 
@@ -77,7 +77,7 @@ class Installer
         $this->doVimPluginInstall();
     }
 
-    private function copyVundle(string $targetDir)
+    private function copyVundle(string $targetDir): void
     {
         Toolkit::ensureDir($targetDir);
         $base = $this->config->get('dotfiles.base_dir');
@@ -87,37 +87,36 @@ class Installer
             ->in($origin)
             ->ignoreVCS(true)
             ->ignoreDotFiles(true)
-            ->exclude(['doc','test'])
+            ->exclude(array('doc', 'test'))
             ->notName('*.md')
         ;
 
         //@codeCoverageIgnoreStart
-        if(!is_dir($origin)){
+        if (!is_dir($origin)) {
             $this->output('Vundle source is not found, please execute <comment>composer install</comment> first before installing vundle');
+
             return;
         }
         //@codeCoverageIgnoreEnd
         $fs = new Filesystem();
-        $fs->mirror($origin,$targetDir,$finder,['override' => true]);
+        $fs->mirror($origin, $targetDir, $finder, array('override' => true));
     }
 
-    private function ensureVimInstalled()
+    private function debug($message, $context = array()): void
     {
-        $process = $this->processor->create('vim --version');
-        $process->run();
-        $output = $process->getOutput();
-        return false !== strpos($output,'VIM - Vi IMproved') ? true:false;
+        $message = "<comment>vundle:</comment> $message";
+        $this->logger->debug($message, $context);
     }
 
-    private function doVimPluginInstall()
+    private function doVimPluginInstall(): void
     {
         $process = $this->processor->create('vim +PluginInstall +qall');
         $process->setTimeout(600);
         //@codeCoverageIgnoreStart
-        $process->run(function ($type,$buffer){
+        $process->run(function ($type, $buffer): void {
             $pattern = '/Processing.*\'(.*)\'/im';
-            $match = preg_match_all($pattern,$buffer,$match);
-            if(preg_match_all($pattern,$buffer,$match)){
+            $match = preg_match_all($pattern, $buffer, $match);
+            if (preg_match_all($pattern, $buffer, $match)) {
                 $bundle = $match[1][0];
                 $this->output->writeln("Processing <comment>$bundle</comment>");
             }
@@ -125,9 +124,12 @@ class Installer
         //@codeCoverageIgnoreEnd
     }
 
-    private function debug($message,$context=array())
+    private function ensureVimInstalled()
     {
-        $message = "<comment>vundle:</comment> $message";
-        $this->logger->debug($message,$context);
+        $process = $this->processor->create('vim --version');
+        $process->run();
+        $output = $process->getOutput();
+
+        return false !== strpos($output, 'VIM - Vi IMproved') ? true : false;
     }
 }
