@@ -14,6 +14,7 @@ namespace Dotfiles\Plugins\Vundle\Tests;
 use Dotfiles\Core\Config\Config;
 use Dotfiles\Core\Tests\BaseTestCase;
 use Dotfiles\Core\Util\CommandProcessor;
+use Dotfiles\Core\Util\Toolkit;
 use Dotfiles\Plugins\Vundle\Installer;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
@@ -65,7 +66,8 @@ class InstallerTest extends BaseTestCase
         $this->config->expects($this->any())
             ->method('get')
             ->willReturnMap([
-                ['vundle.target_dir',$retConfig['target_dir']]
+                ['vundle.target_dir',$retConfig['target_dir']],
+                ['dotfiles.base_dir',__DIR__.'/../']
             ])
         ;
         return new Installer($this->config,$this->logger,$this->output,$this->processor);
@@ -99,5 +101,29 @@ class InstallerTest extends BaseTestCase
         $installer->run();
 
         $this->assertFileExists($temp.'/autoload/vundle.vim');
+    }
+
+    public function testRunWhenVimNotInstalled()
+    {
+        $process = $this->createMock(Process::class);
+        $process->expects($this->exactly(1))
+            ->method('getOutput')
+            ->willReturnOnConsecutiveCalls(
+                null
+            )
+        ;
+        $this->processor->expects($this->exactly(1))
+            ->method('create')
+            ->willReturn($process)
+        ;
+
+        $this->output->expects($this->once())
+            ->method('writeln')
+            ->with($this->stringContains('VIM is not installed'))
+        ;
+
+        $temp = $this->temp;
+        $installer = $this->getSUT();
+        $installer->run();
     }
 }

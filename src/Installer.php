@@ -80,7 +80,8 @@ class Installer
     private function copyVundle(string $targetDir)
     {
         Toolkit::ensureDir($targetDir);
-        $origin = realpath(__DIR__.'/../vendor/vim/vundle');
+        $base = $this->config->get('dotfiles.base_dir');
+        $origin = realpath($base.'/vendor/vim/vundle');
 
         $finder = Finder::create()
             ->in($origin)
@@ -90,10 +91,12 @@ class Installer
             ->notName('*.md')
         ;
 
+        //@codeCoverageIgnoreStart
         if(!is_dir($origin)){
             $this->output('Vundle source is not found, please execute <comment>composer install</comment> first before installing vundle');
             return;
         }
+        //@codeCoverageIgnoreEnd
         $fs = new Filesystem();
         $fs->mirror($origin,$targetDir,$finder,['override' => true]);
     }
@@ -109,7 +112,17 @@ class Installer
     private function doVimPluginInstall()
     {
         $process = $this->processor->create('vim +PluginInstall +qall');
-        $process->run();
+        $process->setTimeout(600);
+        //@codeCoverageIgnoreStart
+        $process->run(function ($type,$buffer){
+            $pattern = '/Processing.*\'(.*)\'/im';
+            $match = preg_match_all($pattern,$buffer,$match);
+            if(preg_match_all($pattern,$buffer,$match)){
+                $bundle = $match[1][0];
+                $this->output->writeln("Processing <comment>$bundle</comment>");
+            }
+        });
+        //@codeCoverageIgnoreEnd
     }
 
     private function debug($message,$context=array())
