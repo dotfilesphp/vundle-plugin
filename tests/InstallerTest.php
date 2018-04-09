@@ -95,7 +95,7 @@ class InstallerTest extends BaseTestCase
         $process->expects($this->exactly(1))
             ->method('getOutput')
             ->willReturnOnConsecutiveCalls(
-                null
+                'some error'
             )
         ;
         $this->processor->expects($this->exactly(1))
@@ -108,7 +108,6 @@ class InstallerTest extends BaseTestCase
             ->with($this->stringContains('VIM is not installed'))
         ;
 
-        $temp = $this->temp;
         $installer = $this->getSUT();
         $installer->run();
     }
