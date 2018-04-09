@@ -123,12 +123,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/dotfilesphp/core.git",
-                "reference": "f953ed5f3f1f779101d2b9f96f301145a93e248d"
+                "reference": "cd497a6cd7e2fe8dff9d918c1e2776867f808c84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dotfilesphp/core/zipball/f953ed5f3f1f779101d2b9f96f301145a93e248d",
-                "reference": "f953ed5f3f1f779101d2b9f96f301145a93e248d",
+                "url": "https://api.github.com/repos/dotfilesphp/core/zipball/cd497a6cd7e2fe8dff9d918c1e2776867f808c84",
+                "reference": "cd497a6cd7e2fe8dff9d918c1e2776867f808c84",
                 "shasum": ""
             },
             "require": {
@@ -173,7 +173,7 @@
                 }
             ],
             "description": "Dotfiles Core Package",
-            "time": "2018-04-09T09:06:26+00:00"
+            "time": "2018-04-09T13:17:10+00:00"
         },
         {
             "name": "monolog/monolog",
