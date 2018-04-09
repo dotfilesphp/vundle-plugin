@@ -1,0 +1,38 @@
+{
+    "name": "dotfiles/vundle-plugin",
+    "description": "Dotfiles Vim Vundle Plugin",
+    "type": "dotfiles-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anthonius Munthi",
+            "email": "me@itstoni.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "vim/vundle",
+                "version": "0.10.2",
+                "dist": {
+                    "url": "https://github.com/VundleVim/Vundle.vim/archive/v0.10.2.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "vim/vundle": "0.10.2"
+    },
+    "autoload": {
+        "psr-4": { "Dotfiles\\Plugins\\Vundle\\": "./src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Dotfiles\\Plugins\\Vundle\\Tests\\": "./tests/" }
+    },
+    "require-dev": {
+        "dotfiles/bash-plugin": "^1.0"
+    }
+}
