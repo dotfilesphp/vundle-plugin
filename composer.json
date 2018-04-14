@@ -24,7 +24,9 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "vim/vundle": "0.10.2"
+        "vim/vundle": "0.10.2",
+        "dotfiles/core": "^1.0@dev",
+        "dotfiles/bash-plugin": "^1.0@dev"
     },
     "autoload": {
         "psr-4": { "Dotfiles\\Plugins\\Vundle\\": "./src/" }
@@ -33,8 +35,6 @@
         "psr-4": { "Dotfiles\\Plugins\\Vundle\\Tests\\": "./tests/" }
     },
     "require-dev": {
-        "dotfiles/bash-plugin": "^1.0@dev",
-        "dotfiles/core": "^1.0@dev",
         "phpunit/phpunit": "^7.1"
     },
     "extra": {

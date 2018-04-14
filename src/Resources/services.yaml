@@ -4,6 +4,7 @@ services:
         public: true
         autowire: true
 
+    Dotfiles\Plugins\Vundle\Command: ~
     Dotfiles\Plugins\Vundle\Installer:
         alias: vundle.installer
 

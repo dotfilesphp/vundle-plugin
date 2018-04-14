@@ -24,6 +24,6 @@ class ConfigurationTest extends BaseTestCase
         $processor = new Processor();
         $config = $processor->processConfiguration(new Configuration(), array());
 
-        $this->assertContains('bundle/Vundle.vim', $config['target_dir']);
+        $this->assertContains('%env(DOTFILES_HOME_DIR)%/.vim/bundle/Vundle.vim', $config['target_dir']);
     }
 }

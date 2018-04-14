@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotfiles\Plugins\Vundle;
 
-use Dotfiles\Core\Config\Config;
+use Dotfiles\Core\DI\Parameters;
 use Dotfiles\Core\Util\CommandProcessor;
 use Dotfiles\Core\Util\Filesystem;
 use Dotfiles\Core\Util\Toolkit;
@@ -27,11 +27,6 @@ use Symfony\Component\Finder\Finder;
 class Installer
 {
     /**
-     * @var Config
-     */
-    private $config;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -40,6 +35,10 @@ class Installer
      * @var OutputInterface
      */
     private $output;
+    /**
+     * @var Parameters
+     */
+    private $parameters;
 
     /**
      * @var CommandProcessor
@@ -47,12 +46,12 @@ class Installer
     private $processor;
 
     public function __construct(
-        Config $config,
+        Parameters $parameters,
         LoggerInterface $logger,
         OutputInterface $output,
         CommandProcessor $processor
     ) {
-        $this->config = $config;
+        $this->parameters = $parameters;
         $this->logger = $logger;
         $this->output = $output;
         $this->processor = $processor;
@@ -68,7 +67,7 @@ class Installer
 
         $this->debug('begin install');
 
-        $config = $this->config;
+        $config = $this->parameters;
         $targetDir = $config->get('vundle.target_dir');
 
         $this->copyVundle($targetDir);
@@ -80,7 +79,7 @@ class Installer
     private function copyVundle(string $targetDir): void
     {
         Toolkit::ensureDir($targetDir);
-        $base = $this->config->get('dotfiles.base_dir');
+        $base = $this->parameters->get('dotfiles.base_dir');
         $origin = realpath($base.'/vendor/vim/vundle');
 
         $finder = Finder::create()

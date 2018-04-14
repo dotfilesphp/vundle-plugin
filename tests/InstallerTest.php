@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotfiles\Plugins\Vundle\Tests;
 
-use Dotfiles\Core\Config\Config;
+use Dotfiles\Core\DI\Parameters;
 use Dotfiles\Core\Tests\BaseTestCase;
 use Dotfiles\Core\Util\CommandProcessor;
 use Dotfiles\Plugins\Vundle\Installer;
@@ -27,17 +27,16 @@ class InstallerTest extends BaseTestCase
     /**
      * @var MockObject
      */
-    private $config;
-
-    /**
-     * @var MockObject
-     */
     private $logger;
 
     /**
      * @var MockObject
      */
     private $output;
+    /**
+     * @var MockObject
+     */
+    private $parameters;
 
     /**
      * @var MockObject
@@ -52,7 +51,7 @@ class InstallerTest extends BaseTestCase
     protected function setUp(): void/* The :void return type declaration that should be here would cause a BC issue */
     {
         $this->logger = $this->createMock(LoggerInterface::class);
-        $this->config = $this->createMock(Config::class);
+        $this->parameters = $this->createMock(Parameters::class);
         $this->output = $this->createMock(OutputInterface::class);
         $this->processor = $this->createMock(CommandProcessor::class);
         $this->temp = sys_get_temp_dir().'/dotfiles/tests/vundle';
@@ -117,7 +116,7 @@ class InstallerTest extends BaseTestCase
         $retConfig = array(
             'target_dir' => $this->temp,
         );
-        $this->config->expects($this->any())
+        $this->parameters->expects($this->any())
             ->method('get')
             ->willReturnMap(array(
                 array('vundle.target_dir', $retConfig['target_dir']),
@@ -125,6 +124,6 @@ class InstallerTest extends BaseTestCase
             ))
         ;
 
-        return new Installer($this->config, $this->logger, $this->output, $this->processor);
+        return new Installer($this->parameters, $this->logger, $this->output, $this->processor);
     }
 }
