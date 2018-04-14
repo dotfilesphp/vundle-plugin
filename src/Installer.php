@@ -79,8 +79,10 @@ class Installer
     private function copyVundle(string $targetDir): void
     {
         Toolkit::ensureDir($targetDir);
-        $base = $this->parameters->get('dotfiles.base_dir');
-        $origin = realpath($base.'/vendor/vim/vundle');
+        $origin = __DIR__.'/../vendor/vim/vundle';
+        if (!is_dir($origin)) {
+            $origin = $this->parameters->get('dotfiles.backup_dir').'/vendor/vim/vundle';
+        }
 
         $finder = Finder::create()
             ->in($origin)
