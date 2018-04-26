@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Dotfiles\Plugins\Vundle;
 
 use Dotfiles\Core\DI\Parameters;
-use Dotfiles\Core\Util\CommandProcessor;
+use Dotfiles\Core\Processor\ProcessRunner;
 use Dotfiles\Core\Util\Filesystem;
 use Dotfiles\Core\Util\Toolkit;
 use Psr\Log\LoggerInterface;
@@ -41,20 +41,20 @@ class Installer
     private $parameters;
 
     /**
-     * @var CommandProcessor
+     * @var ProcessRunner
      */
-    private $processor;
+    private $runner;
 
     public function __construct(
         Parameters $parameters,
         LoggerInterface $logger,
         OutputInterface $output,
-        CommandProcessor $processor
+        ProcessRunner $runner
     ) {
         $this->parameters = $parameters;
         $this->logger = $logger;
         $this->output = $output;
-        $this->processor = $processor;
+        $this->runner = $runner;
     }
 
     public function run(): void
@@ -106,29 +106,27 @@ class Installer
     private function debug($message, $context = array()): void
     {
         $message = "<comment>vundle:</comment> $message";
-        $this->logger->debug($message, $context);
+        $this->logger->info($message, $context);
     }
 
     private function doVimPluginInstall(): void
     {
-        $process = $this->processor->create('vim +PluginInstall +qall');
-        $process->setTimeout(600);
-        //@codeCoverageIgnoreStart
-        $process->run(function ($type, $buffer): void {
+        $runner = $this->runner;
+        $callback = function ($type, $buffer): void {
             $pattern = '/Processing.*\'(.*)\'/im';
             $match = preg_match_all($pattern, $buffer, $match);
             if (preg_match_all($pattern, $buffer, $match)) {
                 $bundle = $match[1][0];
                 $this->output->writeln("Processing <comment>$bundle</comment>");
             }
-        });
-        //@codeCoverageIgnoreEnd
+        };
+        $command = 'vim +PluginInstall +qall';
+        $runner->run($command, $callback, null, null, null, 600);
     }
 
     private function ensureVimInstalled()
     {
-        $process = $this->processor->create('vim --version');
-        $process->run();
+        $process = $this->runner->run('vim --version');
         $output = $process->getOutput();
 
         return false !== strpos($output, 'VIM - Vi IMproved') ? true : false;

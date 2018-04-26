@@ -13,9 +13,8 @@ declare(strict_types=1);
 
 namespace Dotfiles\Plugins\Vundle\Tests\Command;
 
-use Dotfiles\Core\Tests\CommandTestCase;
-use Dotfiles\Core\Tests\Helper\LoggerOutputTrait;
-use Dotfiles\Core\Util\CommandProcessor;
+use Dotfiles\Core\Processor\ProcessRunner;
+use Dotfiles\Core\Tests\Helper\CommandTestCase;
 use Dotfiles\Plugins\Vundle\Command\InstallCommand;
 use Dotfiles\Plugins\Vundle\Installer;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,12 +22,10 @@ use Symfony\Component\Process\Process;
 
 class InstallCommandTest extends CommandTestCase
 {
-    use LoggerOutputTrait;
-
     public function testExecute(): void
     {
         $tester = $this->getTester('vundle:install');
-        $tester->execute(array(), array('verbosity' => OutputInterface::VERBOSITY_DEBUG));
+        $tester->execute(array(), array('verbosity' => OutputInterface::VERBOSITY_VERY_VERBOSE));
         $output = $this->getDisplay(true);
 
         $homeDir = $this->getParameters()->get('dotfiles.home_dir');
@@ -38,22 +35,21 @@ class InstallCommandTest extends CommandTestCase
 
     protected function configureCommand(): void
     {
-        $this->setUpLogger();
         $process = $this->createMock(Process::class);
         $process->expects($this->any())
             ->method('getOutput')
             ->willReturnOnConsecutiveCalls(
                 'VIM - Vi IMproved'
             );
-        $processor = $this->createMock(CommandProcessor::class);
+        $processor = $this->createMock(ProcessRunner::class);
         $processor->expects($this->any())
-            ->method('create')
+            ->method('run')
             ->willReturn($process)
         ;
         $installer = new Installer(
             $this->getService('dotfiles.parameters'),
-            $this->logger,
-            $this->output,
+            $this->getService('dotfiles.logger'),
+            $this->getService('dotfiles.output'),
             $processor
         );
         $this->command = new InstallCommand(

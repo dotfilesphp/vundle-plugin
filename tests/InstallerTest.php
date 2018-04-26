@@ -13,13 +13,10 @@ declare(strict_types=1);
 
 namespace Dotfiles\Plugins\Vundle\Tests;
 
-use Dotfiles\Core\DI\Parameters;
-use Dotfiles\Core\Tests\BaseTestCase;
-use Dotfiles\Core\Util\CommandProcessor;
+use Dotfiles\Core\Processor\ProcessRunner;
+use Dotfiles\Core\Tests\Helper\BaseTestCase;
 use Dotfiles\Plugins\Vundle\Installer;
 use PHPUnit\Framework\MockObject\MockObject;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
 class InstallerTest extends BaseTestCase
@@ -27,65 +24,38 @@ class InstallerTest extends BaseTestCase
     /**
      * @var MockObject
      */
-    private $logger;
-
-    /**
-     * @var MockObject
-     */
-    private $output;
-    /**
-     * @var MockObject
-     */
-    private $parameters;
-
-    /**
-     * @var MockObject
-     */
-    private $processor;
-
-    /**
-     * @var string
-     */
-    private $temp;
+    private $runner;
 
     protected function setUp(): void/* The :void return type declaration that should be here would cause a BC issue */
     {
-        $this->logger = $this->createMock(LoggerInterface::class);
-        $this->parameters = $this->createMock(Parameters::class);
-        $this->output = $this->createMock(OutputInterface::class);
-        $this->processor = $this->createMock(CommandProcessor::class);
-        $this->temp = sys_get_temp_dir().'/dotfiles/tests/vundle';
-        static::cleanupTempDir();
+        $this->runner = $this->createMock(ProcessRunner::class);
     }
 
     public function testRun(): void
     {
-        $this->logger->expects($this->exactly(2))
-            ->method('debug')
-            ->withConsecutive(
-                array($this->stringContains('begin install')),
-                array($this->stringContains('end install'))
-            )
-        ;
-
         $process = $this->createMock(Process::class);
-        $process->expects($this->exactly(1))
+        $process->expects($this->once())
             ->method('getOutput')
-            ->willReturnOnConsecutiveCalls(
-                'VIM - Vi IMproved test'
-            )
+            ->willReturn('VIM - Vi IMproved')
         ;
 
-        $this->processor->expects($this->exactly(2))
-            ->method('create')
-            ->willReturn($process)
-        ;
+        $this->runner->expects($this->at(0))
+            ->method('run')
+            ->with($this->stringContains('vim --version'))
+            ->willReturn($process);
 
-        $temp = $this->temp;
+        $callback = function (): void {
+        };
+        $this->runner->expects($this->at(1))
+            ->method('run')
+            ->with($this->stringContains('vim +PluginINstall +qall'))
+            ->willReturn($this->returnCallback($callback))
+        ;
+        $temp = $this->getParameters()->get('dotfiles.home_dir');
         $installer = $this->getSUT();
         $installer->run();
 
-        $this->assertFileExists($temp.'/autoload/vundle.vim');
+        $this->assertFileExists($temp.'/.vim/bundle/Vundle.vim/autoload/vundle.vim');
     }
 
     public function testRunWhenVimNotInstalled(): void
@@ -97,33 +67,25 @@ class InstallerTest extends BaseTestCase
                 'some error'
             )
         ;
-        $this->processor->expects($this->exactly(1))
-            ->method('create')
+        $this->runner->expects($this->exactly(1))
+            ->method('run')
             ->willReturn($process)
-        ;
-
-        $this->output->expects($this->once())
-            ->method('writeln')
-            ->with($this->stringContains('VIM is not installed'))
         ;
 
         $installer = $this->getSUT();
         $installer->run();
+
+        $display = $this->getDisplay();
+        $this->assertContains('VIM is not installed', $display);
     }
 
     private function getSUT()
     {
-        $retConfig = array(
-            'target_dir' => $this->temp,
+        return new Installer(
+            $this->getParameters(),
+            $this->getService('dotfiles.logger'),
+            $this->getService('dotfiles.output'),
+            $this->runner
         );
-        $this->parameters->expects($this->any())
-            ->method('get')
-            ->willReturnMap(array(
-                array('vundle.target_dir', $retConfig['target_dir']),
-                array('dotfiles.base_dir', __DIR__.'/../'),
-            ))
-        ;
-
-        return new Installer($this->parameters, $this->logger, $this->output, $this->processor);
     }
 }

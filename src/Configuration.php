@@ -26,7 +26,7 @@ class Configuration implements ConfigurationInterface
         $root
             ->children()
                 ->scalarNode('target_dir')
-                    ->defaultValue('%env(DOTFILES_HOME_DIR)%/.vim/bundle/Vundle.vim')
+                    ->defaultValue('%dotfiles.home_dir%/.vim/bundle/Vundle.vim')
                 ->end()
             ->end()
         ;

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotfiles\Plugins\Vundle\Tests;
 
-use Dotfiles\Core\Tests\BaseTestCase;
+use Dotfiles\Core\Tests\Helper\BaseTestCase;
 use Dotfiles\Plugins\Vundle\Configuration;
 use Symfony\Component\Config\Definition\Processor;
 
@@ -24,6 +24,6 @@ class ConfigurationTest extends BaseTestCase
         $processor = new Processor();
         $config = $processor->processConfiguration(new Configuration(), array());
 
-        $this->assertContains('%env(DOTFILES_HOME_DIR)%/.vim/bundle/Vundle.vim', $config['target_dir']);
+        $this->assertContains('%dotfiles.home_dir%/.vim/bundle/Vundle.vim', $config['target_dir']);
     }
 }

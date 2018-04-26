@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Dotfiles\Plugins\Vundle\Tests\Listeners;
 
-use Dotfiles\Core\Tests\BaseTestCase;
+use Dotfiles\Core\Tests\Helper\BaseTestCase;
 use Dotfiles\Plugins\Vundle\Installer;
 use Dotfiles\Plugins\Vundle\Listeners\InstallListener;
 
