@@ -35,6 +35,7 @@ class Installer
      * @var OutputInterface
      */
     private $output;
+
     /**
      * @var Parameters
      */
